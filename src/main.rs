@@ -23,6 +23,10 @@ enum Commands {
         /// The rule to use
         #[arg(short, long)]
         rule: u8,
+
+        /// If the output should be raw
+        #[arg(short, long)]
+        raw: bool
     },
     Image {
         /// The horizontal size of the board.
@@ -75,12 +79,16 @@ fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Cli { width, steps, rule } => {
+        Commands::Cli { width, steps, rule, raw } => {
             let mut line = Line::center_enabled(width.unwrap_or_else(|| termsize::get().unwrap().cols.into()));
             let rule = rule;
             
             for _ in 0..steps.unwrap_or_else(|| termsize::get().unwrap().rows.into()) {
-                println!("{line}");
+                if raw {
+                    line.0.iter().for_each(|&b| print!("{}", if b { "1" } else { "0" }));
+                } else {
+                    println!("{line}");
+                }
                 line = line.next(rule);
             }
         },
