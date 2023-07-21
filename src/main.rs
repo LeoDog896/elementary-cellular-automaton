@@ -1,7 +1,6 @@
-use std::fmt::Display;
 use clap::{Parser, Subcommand};
+use elementary_cellular_automaton::Line;
 use image::{ImageBuffer, RgbImage};
-use bitvec::prelude::*;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -48,42 +47,6 @@ enum Commands {
     }
 }
 
-struct Line(BitVec);
-
-impl Line {
-    fn from_string(input: String) -> Self {
-        Self(input.chars().map(|c| c == '1').collect())
-    }
-
-    /// Creates a new line with the center pixel enabled
-    fn center_enabled(size: usize) -> Self {
-        let mut vec = bitvec![0; size];
-        vec.set(size / 2, true);
-        Self(vec)
-    }
-
-    /// Generates the next line given a rule
-    fn next(&self, rule: u8) -> Self {
-        Self(
-            self.0.iter().enumerate().map(|(i, center)| {
-                let left = if i == 0 { false } else { *self.0.get(i - 1).unwrap() };
-                let right = self.0.get(i + 1).is_some_and(|x| *x);
-                let index = u8::from(left) << 2 | u8::from(*center) << 1 | u8::from(right);
-                rule >> index & 1 == 1
-            }).collect()
-        )
-    }
-}
-
-impl Display for Line {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for b in &self.0 {
-            write!(f, "{}", if *b { "█" } else { " " })?;
-        }
-        Ok(())
-    }
-}
-
 fn main() {
     let args = Cli::parse();
 
@@ -96,7 +59,7 @@ fn main() {
                 Line::center_enabled(width as usize)
             };
             
-            assert_eq!(line.0.len(), width as usize, "The input must be the same size as the width");
+            assert_eq!(line.len(), width as usize, "The input must be the same size as the width");
 
             let rule = rule;
             
@@ -118,7 +81,7 @@ fn main() {
                 Line::center_enabled(width as usize)
             };
 
-            assert_eq!(line.0.len(), width as usize, "The input must be the same size as the width");
+            assert_eq!(line.len(), width as usize, "The input must be the same size as the width");
 
             let mut current_y = 0;
 
