@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use bitvec::prelude::*;
+use std::fmt::Display;
 
 pub struct Line(pub BitVec);
 
@@ -22,12 +22,26 @@ impl Line {
     /// Generates the next line given a rule
     pub fn next(&self, rule: u8) -> Self {
         Self(
-            self.0.iter().enumerate().map(|(i, center)| {
-                let left = if i == 0 { false } else { *self.0.get(i - 1).unwrap() };
-                let right = self.0.get(i + 1).is_some_and(|x| *x);
-                let index = u8::from(left) << 2 | u8::from(*center) << 1 | u8::from(right);
-                rule >> index & 1 == 1
-            }).collect()
+            self.0
+                .iter()
+                .enumerate()
+                .map(|(i, center)| {
+                    let left = if i == 0 {
+                        false
+                    } else {
+                        self.0[i - 1]
+                    };
+
+                    let right = if i == self.0.len() - 1 {
+                        false
+                    } else {
+                        self.0[i + 1]
+                    };
+                    
+                    let index = u8::from(left) << 2 | u8::from(*center) << 1 | u8::from(right);
+                    rule >> index & 1 == 1
+                })
+                .collect(),
         )
     }
 }

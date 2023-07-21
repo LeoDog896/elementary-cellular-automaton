@@ -30,7 +30,7 @@ enum Commands {
 
         /// If the output should be raw
         #[arg(short, long)]
-        raw: bool
+        raw: bool,
     },
     Image {
         /// The horizontal size of the board.
@@ -43,35 +43,46 @@ enum Commands {
 
         /// The rule to use
         #[arg(short, long)]
-        rule: u8
-    }
+        rule: u8,
+    },
 }
 
 fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Cli { width, steps, rule, raw } => {
+        Commands::Cli {
+            width,
+            steps,
+            rule,
+            raw,
+        } => {
             let width = width.unwrap_or_else(|| termsize::get().unwrap().cols.into());
             let mut line = if let Some(input) = args.input {
                 Line::from_string(input)
             } else {
                 Line::center_enabled(width as usize)
             };
-            
-            assert_eq!(line.len(), width as usize, "The input must be the same size as the width");
+
+            assert_eq!(
+                line.len(),
+                width as usize,
+                "The input must be the same size as the width"
+            );
 
             let rule = rule;
-            
+
             for _ in 0..steps.unwrap_or_else(|| termsize::get().unwrap().rows.into()) {
                 if raw {
-                    line.0.iter().for_each(|b| print!("{}", if *b { "1" } else { "0" }));
+                    line.0
+                        .iter()
+                        .for_each(|b| print!("{}", if *b { "1" } else { "0" }));
                 } else {
                     println!("{line}");
                 }
                 line = line.next(rule);
             }
-        },
+        }
         Commands::Image { width, steps, rule } => {
             let mut img: RgbImage = ImageBuffer::new(width, steps);
 
@@ -81,7 +92,11 @@ fn main() {
                 Line::center_enabled(width as usize)
             };
 
-            assert_eq!(line.len(), width as usize, "The input must be the same size as the width");
+            assert_eq!(
+                line.len(),
+                width as usize,
+                "The input must be the same size as the width"
+            );
 
             let mut current_y = 0;
 
