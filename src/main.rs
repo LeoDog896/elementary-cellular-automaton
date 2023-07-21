@@ -47,6 +47,13 @@ enum Commands {
     }
 }
 
+fn gradient(from: image::Rgb<u8>, to: image::Rgb<u8>, step: f64) -> image::Rgb<u8> {
+    let r = from.0[0] as f64 + (to.0[0] as f64 - from.0[0] as f64) * step;
+    let g = from.0[1] as f64 + (to.0[1] as f64 - from.0[1] as f64) * step;
+    let b = from.0[2] as f64 + (to.0[2] as f64 - from.0[2] as f64) * step;
+    image::Rgb([r as u8, g as u8, b as u8])
+}
+
 fn main() {
     let args = Cli::parse();
 
@@ -89,7 +96,11 @@ fn main() {
                 if y != current_y {
                     line = line.next(rule);
                 }
-                *pixel = image::Rgb([u8::from(line.0[x as usize]) * 255, 0, 0]);
+                *pixel = if line.0[x as usize] {
+                    gradient(image::Rgb([34, 146, 164]), image::Rgb([217, 108, 6]), y as f64 / steps as f64)
+                } else {
+                    image::Rgb([0, 21, 36])
+                };
                 current_y = y;
             }
 
