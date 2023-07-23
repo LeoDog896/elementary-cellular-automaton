@@ -103,6 +103,8 @@
 		>, <a href="https://mathworld.wolfram.com/Rule.html">Wolfram Alpha</a>).
 	</p>
 
+    <p>Source on GitHub @ <a href="https://github.com/LeoDog896/elementary-cellular-automaton">LeoDog896/elementary-cellular-automaton</a></p>
+
 	<div>
 		<label for="rule">Rule: </label>
 		<input
