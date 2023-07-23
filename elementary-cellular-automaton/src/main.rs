@@ -68,12 +68,12 @@ fn main() {
             let mut line = if let Some(input) = args.input {
                 Line::from_string(input)
             } else {
-                Line::center_enabled(width as usize)
+                Line::center_enabled(width)
             };
 
             assert_eq!(
                 line.len(),
-                width as usize,
+                width,
                 "The input must be the same size as the width"
             );
 
@@ -112,7 +112,11 @@ fn main() {
                     line = line.next(rule);
                 }
                 *pixel = if line.0[x as usize] {
-                    gradient(image::Rgb([34, 146, 164]), image::Rgb([217, 108, 6]), y as f64 / steps as f64)
+                    gradient(
+                        image::Rgb([34, 146, 164]),
+                        image::Rgb([217, 108, 6]),
+                        y as f64 / steps as f64,
+                    )
                 } else {
                     image::Rgb([0, 21, 36])
                 };

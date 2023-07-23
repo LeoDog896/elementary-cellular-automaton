@@ -1,9 +1,9 @@
-use js_sys::{Uint32Array, Uint8Array};
-use wasm_bindgen::prelude::*;
-use bitvec::prelude::*;
+use js_sys::Uint8Array;
 use std::fmt::Display;
+use wasm_bindgen::prelude::*;
 
-pub struct Line(pub BitVec<u8, Msb0>);
+#[derive(Clone)]
+pub struct Line(pub Vec<bool>);
 
 impl Line {
     pub fn from_string(input: String) -> Self {
@@ -16,8 +16,9 @@ impl Line {
 
     /// Creates a new line with the center pixel enabled
     pub fn center_enabled(size: usize) -> Self {
-        let mut vec: BitVec<u8, Msb0> = BitVec::with_capacity(size);
-        vec.set(size / 2, true);
+        let mut vec = Vec::with_capacity(size);
+        vec.resize(size, false);
+        vec[size / 2] = true;
         Self(vec)
     }
 
@@ -28,18 +29,14 @@ impl Line {
                 .iter()
                 .enumerate()
                 .map(|(i, center)| {
-                    let left = if i == 0 {
-                        false
-                    } else {
-                        self.0[i - 1]
-                    };
+                    let left = if i == 0 { false } else { self.0[i - 1] };
 
                     let right = if i == self.0.len() - 1 {
                         false
                     } else {
                         self.0[i + 1]
                     };
-                    
+
                     let index = u8::from(left) << 2 | u8::from(*center) << 1 | u8::from(right);
                     rule >> index & 1 == 1
                 })
@@ -48,14 +45,22 @@ impl Line {
     }
 }
 
+/// return the next n lines
+/// e.g. wasm_next([0, 1, 0], 30, 3) -> [1, 1, 1, 1, 0, 0, 0, 1, 1]
 #[wasm_bindgen]
-pub fn wasm_next(line: Uint8Array, rule: u8, steps: u32) -> Uint8Array {
-    let line = Line(BitVec::from_iter(line.to_vec()));
-    let mut line = line;
-    for _ in 0..steps {
-        line = line.next(rule);
-    }
-    Uint8Array::from(line.0.into_vec().as_slice())
+pub fn wasm_next(line: Uint8Array, rule: u8, n: u32) -> Uint8Array {
+    let line = Line(line.to_vec().into_iter().map(|b| b == 1).collect());
+    Uint8Array::from(
+        (0..n)
+            .scan(line, |line, _| {
+                let next = line.next(rule);
+                *line = next.clone();
+                Some(next)
+            })
+            .flat_map(|line| line.0.into_iter().map(|b| if b { 1 } else { 0 }))
+            .collect::<Vec<u8>>()
+            .as_slice(),
+    )
 }
 
 impl Display for Line {
