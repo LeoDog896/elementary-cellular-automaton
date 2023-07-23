@@ -3,7 +3,8 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"wasm": "wasm-pack build ./elementary-cellular-automaton --target web",
+		"wasm-patch": "jq '.type = \"module\"' ./elementary-cellular-automaton/pkg/package.json > ./elementary-cellular-automaton/pkg/package.json.tmp && mv ./elementary-cellular-automaton/pkg/package.json.tmp ./elementary-cellular-automaton/pkg/package.json",
+		"wasm": "wasm-pack build ./elementary-cellular-automaton --target web && yarn run wasm-patch",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",

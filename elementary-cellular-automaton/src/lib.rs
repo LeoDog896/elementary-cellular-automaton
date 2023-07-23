@@ -1,7 +1,9 @@
+use js_sys::{Uint32Array, Uint8Array};
+use wasm_bindgen::prelude::*;
 use bitvec::prelude::*;
 use std::fmt::Display;
 
-pub struct Line(pub BitVec);
+pub struct Line(pub BitVec<u8, Msb0>);
 
 impl Line {
     pub fn from_string(input: String) -> Self {
@@ -14,7 +16,7 @@ impl Line {
 
     /// Creates a new line with the center pixel enabled
     pub fn center_enabled(size: usize) -> Self {
-        let mut vec = bitvec![0; size];
+        let mut vec: BitVec<u8, Msb0> = BitVec::with_capacity(size);
         vec.set(size / 2, true);
         Self(vec)
     }
@@ -44,6 +46,16 @@ impl Line {
                 .collect(),
         )
     }
+}
+
+#[wasm_bindgen]
+pub fn wasm_next(line: Uint8Array, rule: u8, steps: u32) -> Uint8Array {
+    let line = Line(BitVec::from_iter(line.to_vec()));
+    let mut line = line;
+    for _ in 0..steps {
+        line = line.next(rule);
+    }
+    Uint8Array::from(line.0.into_vec().as_slice())
 }
 
 impl Display for Line {

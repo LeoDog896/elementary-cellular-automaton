@@ -258,7 +258,9 @@ dependencies = [
  "bitvec",
  "clap",
  "image",
+ "js-sys",
  "termsize",
+ "wasm-bindgen",
 ]
 
 [[package]]

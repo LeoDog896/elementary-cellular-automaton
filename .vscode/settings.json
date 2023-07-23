@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./elementary-cellular-automaton/Cargo.toml"
+    ]
+}
