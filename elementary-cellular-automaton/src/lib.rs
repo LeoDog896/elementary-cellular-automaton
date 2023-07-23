@@ -10,6 +10,10 @@ impl Line {
         Self(input.chars().map(|c| c == '1').collect())
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }
@@ -45,8 +49,6 @@ impl Line {
     }
 }
 
-/// return the next n lines
-/// e.g. wasm_next([0, 1, 0], 30, 3) -> [1, 1, 1, 1, 0, 0, 0, 1, 1]
 #[wasm_bindgen]
 pub fn wasm_next(line: Uint8Array, rule: u8, n: u32) -> Uint8Array {
     let line = Line(line.to_vec().into_iter().map(|b| b == 1).collect());
@@ -57,7 +59,7 @@ pub fn wasm_next(line: Uint8Array, rule: u8, n: u32) -> Uint8Array {
                 *line = next.clone();
                 Some(next)
             })
-            .flat_map(|line| line.0.into_iter().map(|b| if b { 1 } else { 0 }))
+            .flat_map(|line| line.0.into_iter().map(|b| u8::from(b)))
             .collect::<Vec<u8>>()
             .as_slice(),
     )

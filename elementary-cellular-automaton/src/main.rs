@@ -65,11 +65,10 @@ fn main() {
             raw,
         } => {
             let width = width.unwrap_or_else(|| termsize::get().unwrap().cols.into());
-            let mut line = if let Some(input) = args.input {
-                Line::from_string(input)
-            } else {
-                Line::center_enabled(width)
-            };
+            let mut line = args.input.map_or_else(
+                || Line::center_enabled(width),
+                Line::from_string,
+            );
 
             assert_eq!(
                 line.len(),
@@ -93,11 +92,10 @@ fn main() {
         Commands::Image { width, steps, rule } => {
             let mut img: RgbImage = ImageBuffer::new(width, steps);
 
-            let mut line = if let Some(input) = args.input {
-                Line::from_string(input)
-            } else {
-                Line::center_enabled(width as usize)
-            };
+            let mut line = args.input.map_or_else(
+                || Line::center_enabled(width as usize),
+                |input| Line::from_string(input),
+            );
 
             assert_eq!(
                 line.len(),
