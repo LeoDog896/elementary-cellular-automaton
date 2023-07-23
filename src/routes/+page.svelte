@@ -9,6 +9,19 @@
     let width: number;
     let height: number;
 
+    type Color = [r: number, g: number, b: number, a: number];
+
+    function gradient(start: Color, end: Color, percent: number): Color {
+        const [r1, g1, b1, a1] = start;
+        const [r2, g2, b2, a2] = end;
+
+        const r = Math.floor(r1 + (r2 - r1) * percent);
+        const g = Math.floor(g1 + (g2 - g1) * percent);
+        const b = Math.floor(b1 + (b2 - b1) * percent);
+        const a = Math.floor(a1 + (a2 - a1) * percent);
+        return [r, g, b, a];
+    }
+    
 	let render: Render;
 	$: render = ({ context, width, height }) => {
         context.imageSmoothingEnabled = false;
@@ -23,15 +36,11 @@
 
 		for (let i = 0; i < data.length; i += 4) {
 			if (arr[i / 4]) {
-				data[i] = 0;
-				data[i + 1] = 0;
-				data[i + 2] = 255;
-				data[i + 3] = 255;
-			} else {
-				data[i] = 255;
-				data[i + 1] = 255;
-				data[i + 2] = 255;
-				data[i + 3] = 255;
+                const color = gradient([55, 114, 255, 255], [240, 56, 255, 255], i / data.length);
+                data[i] = color[0];
+                data[i + 1] = color[1];
+                data[i + 2] = color[2];
+                data[i + 3] = color[3];
 			}
 		}
 

@@ -49,8 +49,15 @@ impl Line {
     }
 }
 
+/// Produces the next N lines given a rule.
+/// The input line is expected to be a Uint8Array of 0s and 1s.
+/// The output is a Uint8Array of 0s and 1s.
 #[wasm_bindgen]
-pub fn wasm_next(line: Uint8Array, rule: u8, n: u32) -> Uint8Array {
+pub fn wasm_next(
+    line: Uint8Array,
+    rule: u8,
+    n: u32,
+) -> Uint8Array {
     let line = Line(line.to_vec().into_iter().map(|b| b == 1).collect());
     Uint8Array::from(
         (0..n)
