@@ -119,9 +119,9 @@
 
 	<div class="rules">
 		{#each ruleToBinary(parsedRule ?? 0) as r, i}
-			<div class="marker">
+            <button class="marker" on:click={() => rule = (parsedRule ?? 0) ^ (1 << (7 - i))}>
 				<Marker input={rules[i]} output={[r]} />
-			</div>
+			</button>
 		{/each}
 	</div>
 
