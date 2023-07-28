@@ -52,13 +52,24 @@ impl Line {
 /// Produces the next N lines given a rule.
 /// The input line is expected to be a Uint8Array of 0s and 1s.
 /// The output is a Uint8Array of 0s and 1s.
+/// Padding is added to both sides to increase the simulation size.
 #[wasm_bindgen]
 pub fn wasm_next(
     line: Uint8Array,
     rule: u8,
     n: u32,
+    padding: u32,
 ) -> Uint8Array {
-    let line = Line(line.to_vec().into_iter().map(|b| b == 1).collect());
+    let mut line = line.to_vec();
+    line.resize(line.len() + padding as usize * 2, 0);
+    for _ in 0..padding {
+        line.insert(0, 0);
+        line.push(0);
+    };
+
+    let len = line.len();
+    let line = Line(line.into_iter().map(|b| b == 1).collect());
+
     Uint8Array::from(
         (0..n)
             .scan(line, |line, _| {
@@ -66,7 +77,7 @@ pub fn wasm_next(
                 *line = next.clone();
                 Some(next)
             })
-            .flat_map(|line| line.0.into_iter().map(|b| u8::from(b)))
+            .flat_map(|line| line.0.into_iter().map(|b| u8::from(b)).collect::<Vec<u8>>()[padding as usize..len - padding as usize].to_vec())
             .collect::<Vec<u8>>()
             .as_slice(),
     )

@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { Canvas, Layer, type Render } from 'svelte-canvas';
 	import Marker from '../lib/Marker.svelte';
+	import { parse } from 'svelte/compiler';
 
 	let ready = false;
 	let rule = '90';
@@ -34,7 +35,7 @@
 		context.imageSmoothingEnabled = false;
 		if (!ready) return;
 
-		if (!parsedRule) {
+		if (parsedRule === null) {
 			context.fillStyle = 'black';
 			context.fillRect(0, 0, width, height);
 			context.fillStyle = 'white';
@@ -85,12 +86,13 @@
 	// returns the next N rows of the elementary cellular automaton
 	function next(arr: boolean[], rule: number, steps: number): boolean[] {
 		const u8 = new Uint8Array(arr.map((b) => (b ? 1 : 0)));
-		const next = wasm_next(u8, rule, steps);
+		const next = wasm_next(u8, rule, steps, Math.max(0, (steps * 2) - arr.length));
 		return [...next].map((n) => n === 1);
 	}
 
 	onMount(async () => {
 		await init();
+		window.next = next;
 		ready = true;
 	});
 </script>
@@ -101,9 +103,8 @@
 		Simulates a large grid of every Elementary Cellular Automaton from 0 - 255 (<a
 			href="https://en.wikipedia.org/wiki/Elementary_cellular_automaton">Wikipedia</a
 		>, <a href="https://mathworld.wolfram.com/Rule.html">Wolfram Alpha</a>).
-	</p>
-
-    <p>Source on GitHub @ <a href="https://github.com/LeoDog896/elementary-cellular-automaton">LeoDog896/elementary-cellular-automaton</a></p>
+	<br />
+	Source on GitHub @ <a href="https://github.com/LeoDog896/elementary-cellular-automaton">LeoDog896/elementary-cellular-automaton</a></p>
 
 	<div>
 		<label for="rule">Rule: </label>
@@ -119,7 +120,7 @@
 
 	<div class="rules">
 		{#each ruleToBinary(parsedRule ?? 0) as r, i}
-            <button class="marker" on:click={() => rule = (parsedRule ?? 0) ^ (1 << (7 - i))}>
+            <button class="marker" on:click={() => rule = ((parsedRule ?? 0) ^ (1 << (7 - i))).toString()}>
 				<Marker input={rules[i]} output={[r]} />
 			</button>
 		{/each}
@@ -159,7 +160,7 @@
 	}
 
 	.container {
-		width: 60%;
+		width: 90%;
 		height: 60%;
 		overflow: hidden;
 		padding: 1px;
